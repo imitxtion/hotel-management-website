@@ -553,7 +553,8 @@ def generate_invoice(customer_id):
         'total_cost': total_cost
     }
 
-    return render_template('invoice.html', invoice=invoice_data)
+    today = date.today().isoformat()
+    return render_template('invoice.html', invoice=invoice_data, today_date=today)
 
 @app.route('/hotel_report')
 def hotel_report():

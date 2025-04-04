@@ -14,7 +14,7 @@
                 From: {{ invoice.customer.city }}
             </div>
             <div class="col text-end">
-                <strong>Invoice Date:</strong> {{ today_date() }} <br>
+                <strong>Invoice Date:</strong> {{ today_date }} <br>
                 <strong>Customer ID:</strong> {{ invoice.customer.customer_id }}
             </div>
         </div>
@@ -71,4 +71,3 @@
 {% endblock %}
 
 {# Add this Jinja global function if needed, or pass date from Python #}
-{% set today_date = modules.datetime.date.today().isoformat %}
