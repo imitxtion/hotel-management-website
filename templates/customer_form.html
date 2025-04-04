@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{ action }} Customer</h1>
+<form method="POST">
+    <div class="mb-3">
+        <label for="passport_number" class="form-label">Passport Number*</label>
+        <input type="text" class="form-control" id="passport_number" name="passport_number" value="{{ form_data.passport_number or '' }}" required>
+    </div>
+    <div class="row mb-3">
+        <div class="col">
+            <label for="last_name" class="form-label">Last Name*</label>
+            <input type="text" class="form-control" id="last_name" name="last_name" value="{{ form_data.last_name or '' }}" required>
+        </div>
+         <div class="col">
+            <label for="first_name" class="form-label">First Name*</label>
+            <input type="text" class="form-control" id="first_name" name="first_name" value="{{ form_data.first_name or '' }}" required>
+         </div>
+         <div class="col">
+            <label for="middle_name" class="form-label">Middle Name (Patronymic)</label>
+            <input type="text" class="form-control" id="middle_name" name="middle_name" value="{{ form_data.middle_name or '' }}">
+        </div>
+    </div>
+     <div class="mb-3">
+        <label for="city" class="form-label">City of Origin*</label>
+        <input type="text" class="form-control" id="city" name="city" value="{{ form_data.city or '' }}" required>
+    </div>
+     <div class="mb-3">
+         <label for="check_in_date" class="form-label">Check-In Date*</label>
+         <input type="date" class="form-control" id="check_in_date" name="check_in_date" value="{{ form_data.check_in_date or '' }}" required>
+     </div>
+    <div class="mb-3">
+        <label for="room_id" class="form-label">Assign Room*</label>
+        <select class="form-select" id="room_id" name="room_id" required {% if not rooms %}disabled{% endif %}>
+            <option value="" disabled selected>Select an available room</option>
+            {% for room in rooms %}
+            <option value="{{ room.room_id }}" {% if form_data.room_id == room.room_id|string %}selected{% endif %}>
+                Room {{ room.room_number }} ({{ room.type_name|capitalize }})
+            </option>
+            {% else %}
+             <option value="" disabled>No rooms available</option>
+            {% endfor %}
+        </select>
+         {% if not rooms %}
+         <div class="form-text text-danger">No available rooms to assign.</div>
+         {% endif %}
+    </div>
+    <input type="hidden" id="room_number_display" name="room_number_display">
+
+    <button type="submit" class="btn btn-success">{{ action }}</button>
+    <a href="{{ url_for('view_customers') }}" class="btn btn-secondary">Cancel</a>
+</form>
+
+<script>
+    // Optional JS to update hidden input when room is selected
+    const roomSelect = document.getElementById('room_id');
+    const roomNumberDisplay = document.getElementById('room_number_display');
+    roomSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+         if(selectedOption && selectedOption.text.includes('Room')) {
+            roomNumberDisplay.value = selectedOption.text.split('(')[0].trim();
+        } else {
+             roomNumberDisplay.value = '';
+         }
+    });
+     // Trigger change on load if a room is pre-selected (e.g., form redisplay after error)
+    if (roomSelect.value) {
+        roomSelect.dispatchEvent(new Event('change'));
+    }
+    // Set default check-in date to today if not set
+    const dateInput = document.getElementById('check_in_date');
+    if (!dateInput.value) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
+    }
+</script>
+{% endblock %}

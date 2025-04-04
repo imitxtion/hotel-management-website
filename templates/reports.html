@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Queries & Reports</h1>
+
+<div class="row">
+    <div class="col-md-5">
+         <div class="card mb-3">
+            <div class="card-header">Find Occupants by Room</div>
+            <div class="card-body">
+                <form action="{{ url_for('query_occupants_by_room') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="room_id" class="form-label">Select Room:</label>
+                        <select class="form-select" id="room_id" name="room_id" required>
+                            <option value="" selected disabled>Choose a room...</option>
+                            {% for room in rooms %}
+                            <option value="{{ room.room_id }}">Room {{ room.room_number }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-info">Find Occupants</button>
+                </form>
+            </div>
+        </div>
+
+         <div class="card mb-3">
+             <div class="card-header">Find Current Guests by City</div>
+             <div class="card-body">
+                 <form action="{{ url_for('query_customers_by_city') }}" method="POST">
+                     <div class="mb-3">
+                         <label for="city" class="form-label">Enter City:</label>
+                         <input list="cities" class="form-control" id="city" name="city" required>
+                         <datalist id="cities">
+                             {% for c in cities %}
+                             <option value="{{ c }}">
+                             {% endfor %}
+                         </datalist>
+                     </div>
+                     <button type="submit" class="btn btn-info">Find by City</button>
+                 </form>
+             </div>
+         </div>
+
+         <div class="card mb-3">
+             <div class="card-header">Find Cleaner by Customer & Day</div>
+             <div class="card-body">
+                 <form action="{{ url_for('query_cleaner_for_customer_stay') }}" method="POST">
+                     <div class="mb-3">
+                         <label for="customer_id" class="form-label">Select Current Customer:</label>
+                         <select class="form-select" id="customer_id" name="customer_id" required>
+                             <option value="" selected disabled>Choose a customer...</option>
+                              {% for cust in customers %}
+                             <option value="{{ cust.customer_id }}">{{ cust.first_name }} {{ cust.last_name }} (Passport: {{ cust.passport_number }})</option>
+                             {% endfor %}
+                         </select>
+                     </div>
+                     <div class="mb-3">
+                         <label for="day_of_week_query" class="form-label">Select Day of Week:</label>
+                         <select class="form-select" id="day_of_week_query" name="day_of_week" required>
+                              <option value="" selected disabled>Choose a day...</option>
+                             {% for day in days %}
+                             <option value="{{ day }}">{{ day }}</option>
+                             {% endfor %}
+                         </select>
+                     </div>
+                     <button type="submit" class="btn btn-info">Find Cleaner</button>
+                 </form>
+             </div>
+         </div>
+    </div>
+
+     <div class="col-md-7">
+        <h2>{{ query_title or 'Query Results' }}</h2>
+        {% if query_results is defined and query_results is not none %}
+            {% if query_results %}
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            {% for key in query_results[0].keys() %}
+                            <th>{{ key.replace('_', ' ')|title }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in query_results %}
+                        <tr>
+                            {% for value in row.values() %}
+                            <td>{{ value }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted">No results found for this query.</p>
+            {% endif %}
+        {% else %}
+         <p class="text-muted">Submit a query on the left to see results here.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

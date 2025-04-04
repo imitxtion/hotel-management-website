@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Hotel Dashboard</h1>
+<p>Welcome to the Hotel Administration System.</p>
+
+<h2>Current Room Availability</h2>
+{% if availability %}
+<table class="table table-sm table-bordered" style="width: auto;">
+    <thead>
+        <tr>
+            <th>Room Type</th>
+            <th>Available</th>
+            <th>Total</th>
+            <th>Occupancy</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for type, counts in availability.items() %}
+        <tr>
+            <td>{{ type|capitalize }}</td>
+            <td>{{ counts.available }}</td>
+            <td>{{ counts.total }}</td>
+            <td>
+                {% if counts.total > 0 %}
+                    {{ "%.0f"|format(((counts.total - counts.available) / counts.total * 100)) }}%
+                {% else %}
+                    N/A
+                {% endif %}
+             </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No room types defined or unable to fetch availability.</p>
+{% endif %}
+
+<div class="mt-4">
+    <a href="{{ url_for('check_in_customer') }}" class="btn btn-primary">Check In Guest</a>
+    <a href="{{ url_for('view_customers') }}" class="btn btn-secondary">View Current Guests</a>
+</div>
+
+{% endblock %}

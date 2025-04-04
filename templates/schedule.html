@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Cleaning Schedule</h1>
+
+<div class="card mb-4">
+    <div class="card-header">Add New Schedule Entry</div>
+    <div class="card-body">
+        <form action="{{ url_for('add_schedule_entry') }}" method="POST" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="employee_id" class="form-label">Employee</label>
+                <select class="form-select" id="employee_id" name="employee_id" required>
+                    <option value="" selected disabled>Select Employee</option>
+                    {% for emp in employees %}
+                    <option value="{{ emp.employee_id }}">{{ emp.first_name }} {{ emp.last_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+             <div class="col-md-2">
+                <label for="floor" class="form-label">Floor</label>
+                <select class="form-select" id="floor" name="floor" required>
+                    <option value="" selected disabled>Select Floor</option>
+                    {% for f in floors %}
+                     <option value="{{ f }}">{{ f }}</option>
+                     {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="day_of_week" class="form-label">Day of Week</label>
+                <select class="form-select" id="day_of_week" name="day_of_week" required>
+                    <option value="" selected disabled>Select Day</option>
+                    {% for day in days %}
+                    <option value="{{ day }}">{{ day }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-auto">
+                <button type="submit" class="btn btn-primary">Add Entry</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<h2>Current Schedule</h2>
+<table class="table table-striped table-hover table-sm">
+    <thead>
+        <tr>
+            <th>Employee</th>
+            <th>Floor</th>
+            <th>Day</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in schedule %}
+        <tr>
+            <td>{{ entry.first_name }} {{ entry.last_name }}</td>
+            <td>{{ entry.floor }}</td>
+            <td>{{ entry.day_of_week }}</td>
+            <td>
+                <form action="{{ url_for('delete_schedule_entry', schedule_id=entry.schedule_id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Delete this schedule entry?');">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+                </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="4">No schedule entries found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

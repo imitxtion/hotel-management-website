@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{ action }} Employee</h1>
+<form method="POST">
+     <div class="row mb-3">
+        <div class="col">
+            <label for="last_name" class="form-label">Last Name*</label>
+            <input type="text" class="form-control" id="last_name" name="last_name" value="{{ form_data.last_name or '' }}" required>
+        </div>
+         <div class="col">
+            <label for="first_name" class="form-label">First Name*</label>
+            <input type="text" class="form-control" id="first_name" name="first_name" value="{{ form_data.first_name or '' }}" required>
+         </div>
+         <div class="col">
+            <label for="middle_name" class="form-label">Middle Name (Patronymic)</label>
+            <input type="text" class="form-control" id="middle_name" name="middle_name" value="{{ form_data.middle_name or '' }}">
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success">{{ action }} Employee</button>
+    <a href="{{ url_for('view_employees') }}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

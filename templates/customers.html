@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Current Guests</h1>
+<a href="{{ url_for('check_in_customer') }}" class="btn btn-primary mb-3">Check In New Guest</a>
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>Last Name</th>
+            <th>First Name</th>
+            <th>Middle Name</th>
+            <th>Passport No.</th>
+            <th>City</th>
+            <th>Check-In Date</th>
+            <th>Room</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for customer in customers %}
+        <tr>
+            <td>{{ customer.last_name }}</td>
+            <td>{{ customer.first_name }}</td>
+            <td>{{ customer.middle_name or 'N/A' }}</td>
+            <td>{{ customer.passport_number }}</td>
+            <td>{{ customer.city }}</td>
+            <td>{{ customer.check_in_date }}</td>
+            <td>{{ customer.room_number or 'N/A' }}</td>
+            <td>
+                <form action="{{ url_for('check_out_customer', customer_id=customer.customer_id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to check out this customer and generate an invoice?');">
+                    <button type="submit" class="btn btn-warning btn-sm">Check Out</button>
+                </form>
+                </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="8">No current guests found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{{ url_for('view_all_customers') }}">View All Customer History</a>
+{% endblock %}
