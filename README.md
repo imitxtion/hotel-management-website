@@ -1,4 +1,4 @@
-# Flask Hotel Management System
+# Hotel Management System
 
 A simple web application built with Python (Flask) and MySQL for managing basic hotel operations, including rooms, customers, cleaners, check-ins/outs, and invoicing.
 
