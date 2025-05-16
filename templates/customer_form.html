@@ -52,7 +52,7 @@
 </form>
 
 <script>
-    // Optional JS to update hidden input when room is selected
+    // update hidden input when room is selected
     const roomSelect = document.getElementById('room_id');
     const roomNumberDisplay = document.getElementById('room_number_display');
     roomSelect.addEventListener('change', function() {
@@ -63,7 +63,7 @@
              roomNumberDisplay.value = '';
          }
     });
-     // Trigger change on load if a room is pre-selected (e.g., form redisplay after error)
+     // Trigger change on load if a room is pre-selected
     if (roomSelect.value) {
         roomSelect.dispatchEvent(new Event('change'));
     }
