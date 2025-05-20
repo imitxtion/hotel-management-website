@@ -39,7 +39,7 @@ def execute_query(query, params=None, fetch_one=False, fetch_all=False, commit=F
         cursor.execute(query, params or ())
         if commit:
             conn.commit()
-            result = cursor.lastrowid # Return ID for INSERTs if needed
+            result = cursor.lastrowid
         elif fetch_one:
             result = cursor.fetchone()
         elif fetch_all:
@@ -73,7 +73,6 @@ def get_employee_details(employee_id):
 
 
 # --- Routes ---
-
 @app.route('/')
 def index():
     """Homepage / Dashboard"""
@@ -162,7 +161,7 @@ def check_in_customer():
         passport = request.form['passport_number']
         last_name = request.form['last_name']
         first_name = request.form['first_name']
-        middle_name = request.form.get('middle_name') # Optional
+        middle_name = request.form.get('middle_name')
         city = request.form['city']
         check_in = request.form['check_in_date']
         room_id = request.form.get('room_id') # Use get to handle if no rooms available
@@ -190,7 +189,7 @@ def check_in_customer():
         # Use a transaction to ensure atomicity
         conn = get_db_connection()
         if not conn:
-            return redirect(url_for('check_in_customer')) # Error flashed by get_db_connection
+            return redirect(url_for('check_in_customer'))
 
         cursor = conn.cursor()
         try:
@@ -255,7 +254,6 @@ def check_out_customer(customer_id):
 
         conn.commit()
         flash(f"Customer {customer['first_name']} {customer['last_name']} checked out successfully.", "success")
-         # Redirect to generate invoice maybe?
         return redirect(url_for('generate_invoice', customer_id=customer_id))
 
 
@@ -294,7 +292,6 @@ def add_employee():
             flash(f"Employee {first_name} {last_name} hired successfully.", "success")
             return redirect(url_for('view_employees'))
         else:
-            # Error flashed by execute_query
              return render_template('employee_form.html', action="Add", form_data=request.form)
 
 
@@ -312,8 +309,7 @@ def delete_employee(employee_id):
     # Deletion will cascade to cleaning_schedule due to ON DELETE CASCADE
     query = "DELETE FROM employees WHERE employee_id = %s"
     execute_query(query, (employee_id,), commit=True)
-    # Check if deletion actually happened (execute_query doesn't easily return success for DELETE)
-    # We assume it worked if no error flashed. A more robust check might re-query.
+    # Check if deletion actually happened
     flash(f"Employee {employee['first_name']} {employee['last_name']} dismissed.", "success")
     return redirect(url_for('view_employees'))
 
@@ -354,7 +350,7 @@ def add_schedule_entry():
         flash("Employee, Floor, and Day are required.", "warning")
         return redirect(url_for('view_schedule'))
 
-    # Check for duplicates (unique constraint handles DB level, but good to check here)
+    # Check for duplicates
     check_query = "SELECT 1 FROM cleaning_schedule WHERE employee_id = %s AND floor = %s AND day_of_week = %s"
     if execute_query(check_query, (employee_id, floor, day), fetch_one=True):
          flash("This schedule entry (Employee, Floor, Day) already exists.", "warning")
@@ -367,7 +363,6 @@ def add_schedule_entry():
     if schedule_id is not None:
         flash("Schedule entry added successfully.", "success")
     else:
-        # Error flashed by execute_query, potentially duplicate entry
         pass # Redirect anyway
     return redirect(url_for('view_schedule'))
 
@@ -376,12 +371,10 @@ def delete_schedule_entry(schedule_id):
     """Delete a schedule entry"""
     query = "DELETE FROM cleaning_schedule WHERE schedule_id = %s"
     execute_query(query, (schedule_id,), commit=True)
-    # Add check if exists first? Maybe not critical here.
     flash("Schedule entry deleted.", "success")
     return redirect(url_for('view_schedule'))
 
 # --- Queries & Reports ---
-
 @app.route('/reports')
 def reports_page():
      """Page with forms for various queries"""
@@ -511,10 +504,6 @@ def generate_invoice(customer_id):
         return redirect(url_for('view_all_customers')) # Redirect to list of all customers
 
     if not customer['check_out_date']:
-        # Option 1: Prevent invoicing before checkout
-        # flash("Cannot generate invoice until customer checks out.", "warning")
-        # return redirect(url_for('view_customers'))
-        # Option 2: Calculate based on today's date (as if checking out now)
          check_out_date = date.today()
          flash("Warning: Customer has not checked out. Invoice calculated based on today's date.", "warning")
     else:
@@ -563,10 +552,6 @@ def hotel_report():
 
     # --- Occupancy Report ---
     # Calculate how many days each room was occupied and free
-    # This requires historical data. A simplified version shows current status
-    # and income from *completed* stays. A full history needs a different model (e.g., a 'stays' table).
-
-    # Let's report on *current* occupancy status for simplicity
     rooms_query = """
         SELECT r.room_number, r.is_occupied, rt.name as type_name
         FROM rooms r JOIN room_types rt ON r.type_id = rt.type_id
@@ -609,14 +594,11 @@ def hotel_report():
                 total_income += float(duration_days * cost)
             except Exception as e:
                  print(f"Error calculating income for stay customer_id {stay.get('customer_id', 'N/A')}: {e}")
-                 # Optionally flash a warning or log more details
 
     report_data['total_income'] = round(total_income, 2)
 
     return render_template('hotel_report.html', report=report_data)
 
-
-# --- Main Execution ---
 if __name__ == '__main__':
     # Ensure database exists? Could add a check here.
-    app.run(debug=True) # debug=True for development, turn off for production
+    app.run(debug=True)
